@@ -13,49 +13,44 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-@Path("/avions")
+@Path("/vols")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class Avion extends Generic
+public class Vol extends Generic
 {
     @Inject
     Validator validator;
 
     @Inject
-    repositories.Avion repository;
+    repositories.Vol repository;
 
 
     @GET
-
-    public Response getAvions(@QueryParam("operator") String operator)
+    public Response getVols(@QueryParam("destination") String destination)
     {
-        List<beans.Avion> list;
+        List<beans.Vol> list = null;
 
-        if(StringUtils.isNoneBlank(operator))
+        if(StringUtils.isNoneBlank(destination))
         {
-            list = repository.findByOperator(operator);
+            list = repository.findByDest(destination);
         }
-        else
-        {
-            list = repository.listAll();
-        }
-
+        
         return getOr404(list);
     }
 
     @GET
     @Path("/{id}")
-    public Response getAvionsById(@PathParam("id") Long id) //path param
+    public Response getVolById(@PathParam("id") Long id) //path param
     {
-        var list = repository.findByIdOptional(id).orElse(null); //optional c'est quand on sait qu'on a pas forcément de réponse -> donc pas de catch
+        var list = repository.findByVol(id);
         return getOr404(list);
     }
 
     @POST
     @Transactional
-    public Response createAvion(beans.Avion avion)
+    public Response createVol(beans.Vol vol)
     {
-        var violation = validator.validate(avion);
+        var violation = validator.validate(vol);
 
         if(!violation.isEmpty())
         {
@@ -63,13 +58,29 @@ public class Avion extends Generic
         }
         try
         {
-            repository.persistAndFlush(avion);
+            repository.persistAndFlush(vol);
             return  Response.ok().status(201).build();
-        }catch(PersistenceException e) {
+        }catch(PersistenceException e)
+        {
             return Response.serverError().entity(new ErrorWrapper("Erreur lors de l'enregistrement")).build();
         }
     }
 
+    @DELETE
+    @Path("/{id}")
+    @Transactional
+    public Response deleteVol(@PathParam("id") Long id)
+    {
+        try
+        {
+            repository.deleteById(id);
+            return Response.ok().status(204).build();
+        }
+        catch(PersistenceException e)
+        {
+            return Response.serverError().entity(new ErrorWrapper("Erreur lors de la suppression")).build();
+        }
+
+    }
+
 }
-
-
