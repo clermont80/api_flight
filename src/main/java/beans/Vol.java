@@ -54,7 +54,7 @@ public class Vol extends PanacheEntityBase
     private Time arrival_time;
 
     @NotNull(message = "l'identifiant de vol doit avoir une valeur")
-    @Column(nullable = false)
+    @Column(nullable = false,unique = true)
     private Integer plane_id;
 
 }
