@@ -15,5 +15,10 @@ public class Avion implements PanacheRepositoryBase<beans.Avion,Long>
         return find("operator",operatorParam).list(); //ici operator c'est la propriété java
     }
 
+    public beans.Avion getAvionById(Integer identifiant)
+    {
+        return findById(Long.valueOf(identifiant));
+    }
+
     //insert c'est la méthode persist
 }

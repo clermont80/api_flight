@@ -24,6 +24,9 @@ public class Vol extends Generic
     @Inject
     repositories.Vol repository;
 
+    @Inject
+    repositories.Reservation repositoryResa;
+
 
     @GET
     public Response getVols(@QueryParam("destination") String destination)
@@ -69,12 +72,20 @@ public class Vol extends Generic
     @DELETE
     @Path("/{id}")
     @Transactional
-    public Response deleteVol(@PathParam("id") Long id)
+    public Response deleteVol(@PathParam("id") Integer id)
     {
         try
         {
-            repository.deleteById(id);
-            return Response.ok().status(204).build();
+            repository.deleteById(id.longValue());
+
+            var listLinkedResa = repositoryResa.findReservationByFlightId(id);
+
+            for(var resa : listLinkedResa)
+            {
+                repositoryResa.deleteResaById(resa.getId().longValue());
+            }
+
+            return Response.ok().status(201).build();
         }
         catch(PersistenceException e)
         {

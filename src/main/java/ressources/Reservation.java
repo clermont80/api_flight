@@ -1,7 +1,6 @@
 package ressources;
 
 import beans.Passager;
-import beans.Vol;
 import jakarta.inject.Inject;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
@@ -9,7 +8,7 @@ import jakarta.validation.Validator;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.commons.lang3.StringUtils;
+import repositories.Avion;
 
 import java.util.List;
 
@@ -20,6 +19,9 @@ public class Reservation extends Generic
 {
     @Inject
     Validator validator;
+
+    @Inject
+    Avion repositoryAvion;
 
     @Inject
     repositories.Reservation repository;
@@ -48,18 +50,33 @@ public class Reservation extends Generic
 
     @POST
     @Transactional
-    @Path("/{id}")
-    public Response createReservation(@PathParam("id") Long id,beans.Passager passager)
+    @Path("/{number}")
+    public Response createReservation(@PathParam("number") String number,beans.Passager passager)
     {
         try
         {
-            if(repositoryVol.findByVol(id) != null) //on vérifie que le vol existe déjà
+            if(repositoryVol.findByNumber(number) != null) //on vérifie que le vol existe déjà
             {
+                //vérification du nombre de places dans l'avion
+                var volentity = repositoryVol.findByNumber(number);
+                var idvol = volentity.get(0).getId();
+                var idavion = volentity.get(0).getPlane_id();
+                beans.Avion avion = repositoryAvion.getAvionById(idavion);
+
+                var listallresa = repository.findReservationByFlightId(idvol);
+                var size = listallresa.size();
+                var capac = avion.getCapacity();
+
+                if(listallresa.size() == avion.getCapacity()) //plus de place
+                {
+                    String message = "capacité de l avion atteinte";
+                    return Response.status(401).entity(message).build();
+                }
+
                 //création du passager s'il n'existe pas déjà
+                var  list = repositoryPassager.find("email_address", passager.getEmail_address());
 
-                var entity = repositoryPassager.find("email_address", passager.getEmail_address());
-
-                if(entity == null)
+                if(list.count() == 0) //le passager n'existe pas
                 {
                     beans.Passager newpassager = new Passager();
 
@@ -70,6 +87,22 @@ public class Reservation extends Generic
                     repositoryPassager.persistAndFlush(newpassager); //sauvegarde du nouveau passager
 
                     //faut aussi créer la reservation
+
+                    beans.Reservation newreservation = new beans.Reservation();
+                    newreservation.setFlight_id(idvol);
+
+                    var listentity = repositoryPassager.find("email_address",passager.getEmail_address());
+                    var mailaddress = listentity.firstResult().getEmail_address();
+
+                    var persistpassager = repositoryPassager.find("email_address",mailaddress);
+                    newreservation.setPassenger_id(persistpassager.firstResult().getId());
+
+                    var caca = newreservation.getFlight_id();
+                    var prout = newreservation.getPassenger_id();
+
+                    //le problème est surement dans getReservationByVolId
+
+                    repository.persist(newreservation);
                 }
             }
             return  Response.ok().status(201).build();
@@ -77,5 +110,22 @@ public class Reservation extends Generic
         }catch(PersistenceException e) {
             return Response.serverError().entity(new ErrorWrapper("Erreur lors de l'enregistrement")).build();
         }
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Transactional
+    public Response deleteResa(@PathParam("id") Long id)
+    {
+        try
+        {
+            repository.deleteResaById(id);
+            return Response.ok().status(204).build();
+        }
+        catch(PersistenceException e)
+        {
+            return Response.serverError().entity(new ErrorWrapper("Erreur lors de la suppression")).build();
+        }
+
     }
 }

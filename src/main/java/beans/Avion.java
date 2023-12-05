@@ -1,6 +1,5 @@
 package beans;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -21,7 +20,7 @@ public class Avion extends PanacheEntityBase
     @Id
     @SequenceGenerator(name = "avions_sequence_in_java",sequenceName = "avions_sequence_in_database",allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "avions_sequence_in_java")
-    private Long id;
+    private Integer id;
 
     @NotBlank(message = "le fabriquant ne doit pas être vide")
     @Column(nullable = false)

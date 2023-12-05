@@ -27,7 +27,7 @@ public class Passager extends Generic
 
     @GET
     @Path("/{id}")
-    public Response getVolById(@PathParam("id") Long id) //path param
+    public Response getPassagerById(@PathParam("id") Long id) //path param
     {
         var list = repository.findByPassengerId(id);
         return getOr404(list);

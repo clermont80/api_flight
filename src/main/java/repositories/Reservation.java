@@ -10,7 +10,17 @@ public class Reservation implements PanacheRepositoryBase<beans.Reservation,Long
 
     public List<beans.Reservation> findReservationByVol(Long idVolParam)
     {
-        return find("plane_id",idVolParam).list(); //ici operator c'est la propriété java
+        return find("flight_id",idVolParam).list(); //ici operator c'est la propriété java
+    }
+
+    public List<beans.Reservation> findReservationByFlightId(Integer numberParam)
+    {
+        return find("flight_id",numberParam).list();
+    }
+
+    public boolean deleteResaById(Long operatorParam)
+    {
+        return deleteById(operatorParam);
     }
 
     //insert c'est la méthode persist

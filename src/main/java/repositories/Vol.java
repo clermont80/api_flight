@@ -20,6 +20,11 @@ public class Vol implements PanacheRepositoryBase<beans.Vol,Long>
         return find("id",operatorParam).list();
     }
 
+    public List<beans.Vol> findByNumber(String operatorParam)
+    {
+        return find("number",operatorParam).list();
+    }
+
     //insert c'est la méthode persist
 
     public boolean deleteVol(Long operatorParam)

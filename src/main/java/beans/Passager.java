@@ -16,7 +16,7 @@ public class Passager
     @Id
     @SequenceGenerator(name = "passager_sequence_in_java",sequenceName = "passager_sequence_in_database",allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "passager_sequence_in_java")
-    private Long id;
+    private Integer id;
 
     @NotBlank(message = "le prenom du passager ne peut être vide")
     @Column(nullable = false)

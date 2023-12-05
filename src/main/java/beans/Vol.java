@@ -23,7 +23,7 @@ public class Vol extends PanacheEntityBase
     @Id
     @SequenceGenerator(name = "vols_sequence_in_java",sequenceName = "vols_sequence_in_database",allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vols_sequence_in_java")
-    private Long id;
+    private Integer id;
 
     @NotBlank(message = "le numéro de vol ne doit pas être vide")
     @Column(nullable = false)
